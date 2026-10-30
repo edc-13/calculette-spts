@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" href="icone-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="spts">
+<meta name="theme-color" content="#1b2d24">
+<title>Calculette spts et cœurs</title>
+<style>
+:root {
+  /* palette : feutre vert sombre + ivoire, accent cuivre ; mise en page = un bandeau saisie + résultats, puis deux grilles de 15 niveaux côte à côte */
+  --fond: #f4f1ea;
+  --papier: #fffdf8;
+  --encre: #1f2a24;
+  --encre-douce: #5c6962;
+  --trait: #d8d2c4;
+  --accent: #b5652a;
+  --oblig: #e4ebdf;
+  --oblig-case: #d4dfcc;
+  --alerte: #b23a3a;
+  --alerte-doux: #f7e3e3;
+  --repere: #fff3c4;
+  --fonte: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fond: #171c19; --papier: #1f2622; --encre: #ece7dc; --encre-douce: #a7b0aa;
+    --trait: #3a443e; --accent: #e0905a; --oblig: #26352c; --oblig-case: #324536;
+    --alerte: #ef8a8a; --alerte-doux: #452525; --repere: #4a3f12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fond: #171c19; --papier: #1f2622; --encre: #ece7dc; --encre-douce: #a7b0aa;
+  --trait: #3a443e; --accent: #e0905a; --oblig: #26352c; --oblig-case: #324536;
+  --alerte: #ef8a8a; --alerte-doux: #452525; --repere: #4a3f12;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--fond); color: var(--encre); font-family: var(--fonte); font-size: 13px; line-height: 1.3; }
+main { max-width: 1180px; margin: 0 auto; padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left)); display: grid; gap: 10px; }
+.entete { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+h1 { font-size: 1.1rem; margin: 0; letter-spacing: -0.01em; }
+h1 small { font-weight: normal; color: var(--encre-douce); font-size: 0.8rem; margin-left: 6px; }
+h2 { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--encre-douce); margin: 0 0 4px; }
+section { background: var(--papier); border: 1px solid var(--trait); border-radius: 8px; padding: 10px 12px; }
+.bandeau { display: grid; grid-template-columns: repeat(3, minmax(110px, 150px)) 1fr 1fr; gap: 12px; align-items: start; }
+label.champ { display: grid; gap: 3px; font-size: 0.78rem; color: var(--encre-douce); }
+label.champ span b, .lvl b { color: var(--alerte); }
+input { font: inherit; font-variant-numeric: tabular-nums; color: var(--encre); background: var(--papier); border: 1px solid var(--trait); border-radius: 5px; padding: 5px 7px; width: 100%; }
+input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+input.manque { border-color: var(--alerte); background: var(--alerte-doux); }
+.tuile { border-left: 1px solid var(--trait); padding-left: 12px; display: grid; gap: 2px; align-content: start; min-width: 0; }
+.tuile .valeur { font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tuile .valeur.texte { font-size: 0.82rem; font-weight: 500; color: var(--alerte); line-height: 1.3; }
+.tuile .detail { font-size: 0.72rem; color: var(--encre-douce); }
+.coeurs { color: var(--accent); font-size: 1.3rem; letter-spacing: 1px; }
+.outils { display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+button { font: inherit; font-size: 0.75rem; color: var(--encre); background: var(--papier); border: 1px solid var(--trait); border-radius: 5px; padding: 3px 9px; cursor: pointer; }
+button:hover { border-color: var(--accent); color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.grilles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.tableau { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: 1px 3px; text-align: right; border-bottom: 1px solid var(--trait); white-space: nowrap; }
+th { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--encre-douce); font-weight: 600; }
+td.lvl { font-weight: 600; text-align: center; width: 2.4em; }
+td input { width: 5.4em; padding: 2px 4px; text-align: right; border-radius: 4px; }
+td input.duree { width: 3.6em; }
+td input.herite { color: var(--encre-douce); }
+td input.oblig-case { background: var(--oblig-case); }
+td.calc { color: var(--encre-douce); font-family: var(--mono); font-size: 0.72rem; }
+tr.oblig td { background: var(--oblig); }
+tr.repere td { background: var(--repere); }
+tr.repere td.lvl { color: var(--accent); }
+td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weight: 600; width: 5em; white-space: normal; line-height: 1.1; }
+.legende { font-size: 0.7rem; color: var(--encre-douce); margin-top: 6px; display: grid; gap: 1px; }
+.legende b { color: var(--alerte); }
+@media (max-width: 760px) { .grilles { grid-template-columns: 1fr; } .bandeau { grid-template-columns: 1fr 1fr; } .tuile { border-left: 0; padding-left: 0; } }
+</style>
+</head>
+<body>
+<main>
+  <section>
+    <div class="bandeau">
+      <label class="champ"><span>Stack de départ <b>*</b></span><input id="ss" type="text" inputmode="numeric" autocomplete="off" placeholder="ex. 30000"></label>
+      <label class="champ"><span>Buy-in total ($, rake compris)</span><input id="bi" type="text" inputmode="decimal" autocomplete="off" placeholder="ex. 560"></label>
+      <label class="champ"><span>Rake ($)</span><input id="rake" type="text" inputmode="decimal" autocomplete="off" placeholder="ex. 50"></label>
+      <div class="tuile">
+        <h2>spts</h2>
+        <div id="spts" class="valeur texte">Saisissez le stack, la durée du niveau 1 et les blinds.</div>
+        <div id="spts-detail" class="detail"></div>
+      </div>
+      <div class="tuile">
+        <h2>Cœurs</h2>
+        <div id="coeurs" class="valeur texte">Pas assez d'information</div>
+        <div id="coeurs-detail" class="detail"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="outils">
+      <h1>Calculette spts et cœurs <small>MyPokerSeries</small></h1>
+      <button id="effacer" type="button">Tout effacer</button>
+    </div>
+    <div class="grilles">
+      <div class="tableau"><table>
+        <thead><tr><th>Niv.</th><th>SB</th><th>BB</th><th>Ante</th><th>Durée</th><th>Orbite</th><th>Cumul</th><th></th></tr></thead>
+        <tbody id="corps1"></tbody>
+      </table></div>
+      <div class="tableau"><table>
+        <thead><tr><th>Niv.</th><th>SB</th><th>BB</th><th>Ante</th><th>Durée</th><th>Orbite</th><th>Cumul</th><th></th></tr></thead>
+        <tbody id="corps2"></tbody>
+      </table></div>
+    </div>
+    <div class="legende">
+      <div><b>*</b> Obligatoires : durée du niveau 1, niveaux 6, 10, 14 et 18, et le niveau où l'orbite SB+BB+ante atteint le stack (ou les deux niveaux consécutifs qui l'encadrent). Saisie au clavier ; Entrée passe au niveau suivant.</div>
+      <div>Saisir une SB remplit la BB (double) et l'ante (= BB) ; modifier la BB remet l'ante à la BB. Une durée vide hérite du niveau précédent ; une durée saisie vaut pour les niveaux suivants jusqu'à la prochaine saisie.</div>
+      <div>spts = minutes pour que l'orbite coûte le stack ÷ (O10/O6 + O14/O10 + O18/O14). Cœurs = barème spts/buy-in + correctif rake/buy-in, arrondi au demi, de 0 à 5.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var N = 30, OBLIG = [6, 10, 14, 18];
+  var lignes = [];
+
+  // Barème spts (feuille notation de LVEvents) : ratio spts/attendu → cœurs, attendu = -64.05 + 19.73·ln(BI)
+  var BAREME_SPTS = [
+    [0.1483676342834636, 0], [0.30315810987789965, 0.25], [0.36417510233213796, 0.5], [0.5003286899808058, 0.75],
+    [0.5717760835043623, 1], [0.6516325047937308, 1.25], [0.7625571865140993, 1.5], [0.8196874282664266, 1.75],
+    [0.8861834164400145, 2], [0.9576456394659925, 2.25], [0.9846215729720768, 2.5], [1.0266430908745594, 2.75],
+    [1.0758054583748453, 3], [1.1266813333289396, 3.25], [1.1728805136415885, 3.5], [1.2142180112373682, 3.75],
+    [1.2632773248227165, 4], [1.3003993067043909, 4.25], [1.3830963884962746, 4.5], [1.55741778408793, 4.75],
+    [1.672581679111774, 5], [2.888794454709936, 5.25]
+  ];
+  // Barème rake : ratio rake/attendu → correctif, attendu = e^0.147 · BI^0.6712
+  var BAREME_RAKE = [
+    [0, 0.5], [0.858850559903036, 0.4], [0.920088003716254, 0.3], [0.9415284744568491, 0.2], [0.9747447637092375, 0.1],
+    [1.0017736440318934, 0], [1.0372224028028372, -0.1], [1.0605571637078097, -0.2], [1.0830497374547083, -0.3],
+    [1.1196293668591748, -0.4], [1.195468291606422, -0.5], [2.8635043420110864, -0.5]
+  ];
+  // MATCH(x, table, 1) d'Excel : plus grande borne ≤ x ; null si x < première borne
+  function bareme(table, x) {
+    var res = null;
+    for (var i = 0; i < table.length; i++) { if (table[i][0] <= x) res = table[i][1]; else break; }
+    return res;
+  }
+  function excelRound(x) { return x < 0 ? -Math.round(-x) : Math.round(x); }
+
+  function num(el) {
+    var v = el.value.trim().replace(/\s/g, '').replace(',', '.');
+    if (v === '') return null;
+    var n = Number(v);
+    return isFinite(n) ? n : null;
+  }
+  function fmt(n) { return Number.isInteger(n) ? String(n) : n.toLocaleString('fr-FR', { maximumFractionDigits: 2 }); }
+
+  function creerLigne(i) {
+    var tr = document.createElement('tr');
+    if (OBLIG.indexOf(i) >= 0) tr.className = 'oblig';
+    var l = { tr: tr, lvl: i };
+    var tdL = document.createElement('td'); tdL.className = 'lvl'; tdL.innerHTML = i + (OBLIG.indexOf(i) >= 0 ? ' <b>*</b>' : ''); tr.appendChild(tdL);
+    ['sb', 'bb', 'ante', 'duree'].forEach(function (k) {
+      var td = document.createElement('td'), inp = document.createElement('input');
+      inp.type = 'text'; inp.inputMode = 'decimal'; inp.autocomplete = 'off'; inp.id = k + '-' + i;
+      if (k === 'duree') { inp.className = 'duree'; inp.setAttribute('aria-label', 'Durée du niveau ' + i); }
+      else inp.setAttribute('aria-label', k.toUpperCase() + ' du niveau ' + i);
+      td.appendChild(inp); tr.appendChild(td); l[k] = inp;
+    });
+    ['orbite', 'cumul'].forEach(function (k) { var td = document.createElement('td'); td.className = 'calc'; tr.appendChild(td); l[k] = td; });
+    var tdN = document.createElement('td'); tdN.className = 'note'; tr.appendChild(tdN); l.note = tdN;
+
+    l.sb.addEventListener('input', function () {
+      var sb = num(l.sb);
+      if (sb !== null) { l.bb.value = fmt(sb * 2); l.ante.value = l.bb.value; }
+      else { l.bb.value = ''; l.ante.value = ''; }
+      recalc();
+    });
+    l.bb.addEventListener('input', function () { var bb = num(l.bb); l.ante.value = bb !== null ? fmt(bb) : ''; recalc(); });
+    l.ante.addEventListener('input', recalc);
+    l.duree.addEventListener('input', recalc);
+    // Entrée : même colonne du niveau suivant
+    ['sb', 'bb', 'ante', 'duree'].forEach(function (k) {
+      l[k].addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && lignes[i]) { e.preventDefault(); lignes[i][k].focus(); lignes[i][k].select(); }
+      });
+    });
+    return l;
+  }
+  var corps1 = document.getElementById('corps1'), corps2 = document.getElementById('corps2');
+  for (var i = 1; i <= N; i++) { var l = creerLigne(i); lignes.push(l); (i <= 15 ? corps1 : corps2).appendChild(l.tr); }
+  var d1 = lignes[0].duree;
+  d1.classList.add('oblig-case'); d1.placeholder = 'min';
+  lignes[0].tr.querySelector('.lvl').innerHTML = '1 <b>*</b>';
+
+  var ss = document.getElementById('ss'), bi = document.getElementById('bi'), rake = document.getElementById('rake');
+  [ss, bi, rake].forEach(function (el) { el.addEventListener('input', recalc); });
+  ss.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); lignes[0].sb.focus(); } });
+
+  function durees() {
+    // durée explicite du niveau, sinon héritée de la dernière durée saisie au-dessus
+    var res = [], courante = null;
+    for (var i = 0; i < N; i++) {
+      var d = num(lignes[i].duree);
+      if (d !== null && d > 0) courante = d;
+      res.push(courante);
+    }
+    return res;
+  }
+
+  function recalc() {
+    var stack = num(ss), base = num(d1);
+    var dur = durees();
+    var orb = [], cumul = [], cum = 0;
+    for (var i = 0; i < N; i++) {
+      var l = lignes[i];
+      var sb = num(l.sb), bb = num(l.bb), ante = num(l.ante);
+      var rempli = sb !== null && bb !== null && (sb + bb) > 0;
+      var o = rempli ? sb + bb + (ante || 0) : null;
+      orb.push(o);
+      l.orbite.textContent = o !== null ? fmt(o) : '';
+      if (i > 0) {
+        var explicite = num(l.duree) !== null;
+        l.duree.classList.toggle('herite', !explicite);
+        l.duree.placeholder = explicite ? '' : (dur[i] !== null ? fmt(dur[i]) : '');
+      }
+      cum += dur[i] || 0;
+      cumul.push(cum);
+      l.cumul.textContent = dur[i] !== null ? fmt(cum) : '';
+      l.tr.classList.remove('repere');
+      l.note.textContent = '';
+      l.sb.classList.remove('manque');
+    }
+    ss.classList.toggle('manque', stack === null || stack <= 0);
+    d1.classList.toggle('manque', base === null || base <= 0);
+
+    var sptsEl = document.getElementById('spts'), sptsDet = document.getElementById('spts-detail');
+    var spts = null, msg = null, detail = '';
+
+    if (stack === null || stack <= 0 || base === null || base <= 0) {
+      msg = 'Saisissez le stack de départ et la durée du niveau 1.';
+    } else {
+      var manquants = OBLIG.filter(function (n) { return orb[n - 1] === null || orb[n - 1] <= 0; });
+      manquants.forEach(function (n) { lignes[n - 1].sb.classList.add('manque'); });
+      // niveau où l'orbite coûte le stack (ou deux niveaux consécutifs remplis qui l'encadrent)
+      var temps = null, k = null;
+      for (var j = 0; j < N && temps === null; j++) {
+        var o1 = orb[j], o2 = j + 1 < N ? orb[j + 1] : null;
+        if (o1 === null) continue;
+        if (o1 === stack) { temps = cumul[j]; k = j; }
+        else if (j === 0 && o1 > stack) { temps = cumul[0]; k = 0; }
+        else if (o1 < stack && o2 !== null && o2 > stack) { temps = cumul[j] + dur[j + 1] * (stack - o1) / (o2 - o1); k = j + 1; }
+      }
+      if (temps !== null) {
+        lignes[k].tr.classList.add('repere');
+        lignes[k].note.textContent = orb[k] === stack ? 'orbite = stack' : 'orbite > stack';
+      }
+      if (manquants.length) {
+        msg = 'Remplissez les niveaux obligatoires : ' + manquants.join(', ') + '.';
+      } else if (temps === null) {
+        msg = "Remplissez le niveau pour lequel l'orbite coûte le stack de départ.";
+      } else {
+        var o6 = orb[5], o10 = orb[9], o14 = orb[13], o18 = orb[17];
+        var facteur = o10 / o6 + o14 / o10 + o18 / o14;
+        spts = Math.floor(temps / facteur + 0.5);
+        detail = fmt(Math.round(temps)) + ' min jusqu’au stack (niveau ' + (k + 1) + ') ÷ facteur ' + facteur.toFixed(3);
+      }
+    }
+    if (spts !== null) { sptsEl.className = 'valeur'; sptsEl.textContent = spts; sptsDet.textContent = detail; }
+    else { sptsEl.className = 'valeur texte'; sptsEl.textContent = msg; sptsDet.textContent = ''; }
+
+    // Cœurs
+    var cEl = document.getElementById('coeurs'), cDet = document.getElementById('coeurs-detail');
+    var buyin = num(bi), fee = num(rake);
+    if (spts === null || buyin === null || fee === null || buyin <= 0) {
+      cEl.className = 'valeur texte'; cEl.textContent = 'Pas assez d’information';
+      cDet.textContent = spts === null ? 'Il faut un spts, un buy-in et un rake.' : (buyin === null || buyin <= 0 ? 'Il manque le buy-in.' : 'Il manque le rake (0 si aucun).');
+      return;
+    }
+    var attendu = -64.05 + 19.73 * Math.log(buyin);
+    var ratioSpts = attendu > 0 ? spts / attendu : -1;
+    var noteSpts = bareme(BAREME_SPTS, ratioSpts);
+    var attenduRake = Math.exp(0.147) * Math.pow(buyin, 0.6712);
+    var noteRake = bareme(BAREME_RAKE, fee / attenduRake);
+    if (noteSpts === null || noteRake === null) {
+      cEl.className = 'valeur texte'; cEl.textContent = 'Hors barème';
+      cDet.textContent = attendu <= 0 ? 'Buy-in trop faible pour le barème (moins de 26 $).' : 'spts très inférieur à l’attendu (' + fmt(Math.round(attendu)) + ') pour ce buy-in.';
+      return;
+    }
+    var note = Math.max(0, Math.min(5, excelRound(2 * (noteSpts + noteRake)) / 2));
+    var pleins = Math.floor(note), demi = note - pleins >= 0.5;
+    var dessin = '♥'.repeat(pleins) + (demi ? '½' : '') + '♡'.repeat(5 - pleins - (demi ? 1 : 0));
+    cEl.className = 'valeur';
+    cEl.innerHTML = '<span class="coeurs" aria-hidden="true">' + dessin + '</span> ' + fmt(note);
+    cDet.textContent = 'spts attendu ' + fmt(Math.round(attendu)) + ' → ' + fmt(noteSpts) + ' ; rake attendu ' + fmt(Math.round(attenduRake)) + ' $ → ' + (noteRake > 0 ? '+' : '') + fmt(noteRake);
+  }
+
+  // Mémorisation locale des saisies (confort ; fonctionne sans)
+  var CLE = 'calculette-spts-v2';
+  function sauver() {
+    try {
+      var etat = { ss: ss.value, bi: bi.value, rake: rake.value, niv: lignes.map(function (l) { return [l.sb.value, l.bb.value, l.ante.value, l.duree.value]; }) };
+      localStorage.setItem(CLE, JSON.stringify(etat));
+    } catch (e) { /* stockage indisponible */ }
+  }
+  function charger() {
+    try {
+      var etat = JSON.parse(localStorage.getItem(CLE) || 'null');
+      if (!etat) return;
+      ss.value = etat.ss || ''; bi.value = etat.bi || ''; rake.value = etat.rake || '';
+      (etat.niv || []).forEach(function (v, i) { if (lignes[i]) { lignes[i].sb.value = v[0]; lignes[i].bb.value = v[1]; lignes[i].ante.value = v[2]; lignes[i].duree.value = v[3]; } });
+    } catch (e) { /* ignorer */ }
+  }
+  document.addEventListener('input', sauver);
+  document.getElementById('effacer').addEventListener('click', function () {
+    [ss, bi, rake].forEach(function (el) { el.value = ''; });
+    lignes.forEach(function (l) { l.sb.value = ''; l.bb.value = ''; l.ante.value = ''; l.duree.value = ''; });
+    try { localStorage.removeItem(CLE); } catch (e) { /* ignorer */ }
+    recalc(); ss.focus();
+  });
+  charger();
+  recalc();
+})();
+</script>
+</body>
+</html>
