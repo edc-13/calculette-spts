@@ -45,19 +45,25 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--fond); color: var(--encre); font-family: var(--fonte); font-size: 13px; line-height: 1.3; }
-main { max-width: 1180px; margin: 0 auto; padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left)); display: grid; gap: 10px; }
+@media (max-width: 480px) { html, body { font-size: 12px; } }
+main { max-width: 1180px; margin: 0 auto; padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left)); display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .entete { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 h1 { font-size: 1.1rem; margin: 0; letter-spacing: -0.01em; }
 h1 small { font-weight: normal; color: var(--encre-douce); font-size: 0.8rem; margin-left: 6px; }
 h2 { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--encre-douce); margin: 0 0 4px; }
 section { background: var(--papier); border: 1px solid var(--trait); border-radius: 8px; padding: 10px 12px; }
-.bandeau { display: grid; grid-template-columns: repeat(3, minmax(110px, 150px)) 1fr 1fr; gap: 12px; align-items: start; }
+.bandeau { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 18px; align-items: start; }
+.champs { display: flex; flex-wrap: wrap; gap: 8px 10px; min-width: 0; }
+.resultats { display: flex; flex-wrap: wrap; gap: 10px 14px; min-width: 0; }
 label.champ { display: grid; gap: 3px; font-size: 0.78rem; color: var(--encre-douce); }
+label.champ input { width: 7em; }
+label.champ input.court { width: 5em; }
+#code { width: 6.5em; }
 label.champ span b, .lvl b { color: var(--alerte); }
 input { font: inherit; font-variant-numeric: tabular-nums; color: var(--encre); background: var(--papier); border: 1px solid var(--trait); border-radius: 5px; padding: 5px 7px; width: 100%; }
 input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
 input.manque { border-color: var(--alerte); background: var(--alerte-doux); }
-.tuile { border-left: 1px solid var(--trait); padding-left: 12px; display: grid; gap: 2px; align-content: start; min-width: 0; }
+.tuile { border-left: 1px solid var(--trait); padding-left: 12px; display: grid; gap: 2px; align-content: start; min-width: 0; flex: 1 1 150px; }
 .tuile .valeur { font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .tuile .valeur.texte { font-size: 0.82rem; font-weight: 500; color: var(--alerte); line-height: 1.3; }
 .tuile .detail { font-size: 0.72rem; color: var(--encre-douce); }
@@ -66,33 +72,38 @@ input.manque { border-color: var(--alerte); background: var(--alerte-doux); }
 button { font: inherit; font-size: 0.75rem; color: var(--encre); background: var(--papier); border: 1px solid var(--trait); border-radius: 5px; padding: 3px 9px; cursor: pointer; }
 button:hover { border-color: var(--accent); color: var(--accent); }
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.grilles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grilles { display: grid; grid-template-columns: max-content max-content; gap: 14px 28px; justify-content: start; }
+.tableau table { width: auto; }
 .tableau { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 th, td { padding: 1px 3px; text-align: right; border-bottom: 1px solid var(--trait); white-space: nowrap; }
 th { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--encre-douce); font-weight: 600; }
 td.lvl { font-weight: 600; text-align: center; width: 2.4em; }
-td input { width: 5.4em; padding: 2px 4px; text-align: right; border-radius: 4px; }
-td input.duree { width: 3.6em; }
+td input { width: 4.6em; padding: 2px 3px; text-align: right; border-radius: 4px; }
+td input.duree { width: 3em; }
 td input.herite { color: var(--encre-douce); }
 td input.oblig-case { background: var(--oblig-case); }
-td.calc { color: var(--encre-douce); font-family: var(--mono); font-size: 0.72rem; }
+td.calc { color: var(--encre-douce); font-family: var(--mono); font-size: 0.72rem; min-width: 4.5em; }
 tr.oblig td { background: var(--oblig); }
 tr.repere td { background: var(--repere); }
-tr.repere td.lvl { color: var(--accent); }
-td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weight: 600; width: 5em; white-space: normal; line-height: 1.1; }
+tr.repere td.lvl, tr.repere td.calc { color: var(--accent); font-weight: 700; }
 .legende { font-size: 0.7rem; color: var(--encre-douce); margin-top: 6px; display: grid; gap: 1px; }
 .legende b { color: var(--alerte); }
-@media (max-width: 760px) { .grilles { grid-template-columns: 1fr; } .bandeau { grid-template-columns: 1fr 1fr; } .tuile { border-left: 0; padding-left: 0; } }
+@media (max-width: 760px) { .bandeau { grid-template-columns: minmax(0, 1fr); } .grilles { grid-template-columns: minmax(0, 1fr); gap: 0; } .grilles .tableau + .tableau thead { display: none; } .tuile { border-left: 0; padding-left: 0; } }
 </style>
 </head>
 <body>
 <main>
   <section>
     <div class="bandeau">
-      <label class="champ"><span>Stack de départ <b>*</b></span><input id="ss" type="text" inputmode="numeric" autocomplete="off" placeholder="ex. 30000"></label>
-      <label class="champ"><span>Buy-in total ($, rake compris)</span><input id="bi" type="text" inputmode="decimal" autocomplete="off" placeholder="ex. 560"></label>
-      <label class="champ"><span>Rake ($)</span><input id="rake" type="text" inputmode="decimal" autocomplete="off" placeholder="ex. 50"></label>
+      <div class="champs">
+        <label class="champ"><span>&nbsp;</span><input id="code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Code"></label>
+        <label class="champ"><span>Stack <b>*</b></span><input id="ss" type="text" inputmode="numeric" autocomplete="off" placeholder="30000"></label>
+        <label class="champ"><span>Buy-in (rake compris)</span><input id="bi" type="text" inputmode="decimal" autocomplete="off" placeholder="560"></label>
+        <label class="champ"><span>Rake</span><input id="rake" type="text" inputmode="decimal" autocomplete="off" placeholder="50"></label>
+        <label class="champ"><span>coeff_dollar</span><input id="coeff" class="court" type="text" inputmode="decimal" autocomplete="off" placeholder="1"></label>
+      </div>
+      <div class="resultats">
       <div class="tuile">
         <h2>spts</h2>
         <div id="spts" class="valeur texte">Saisissez le stack, la durée du niveau 1 et les blinds.</div>
@@ -102,6 +113,7 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
         <h2>Cœurs</h2>
         <div id="coeurs" class="valeur texte">Pas assez d'information</div>
         <div id="coeurs-detail" class="detail"></div>
+      </div>
       </div>
     </div>
   </section>
@@ -113,18 +125,18 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
     </div>
     <div class="grilles">
       <div class="tableau"><table>
-        <thead><tr><th>Niv.</th><th>SB</th><th>BB</th><th>Ante</th><th>Durée</th><th>Orbite</th><th>Cumul</th><th></th></tr></thead>
+        <thead><tr><th>Niv.</th><th>SB</th><th>BB</th><th>Ante</th><th>Durée</th><th>Orbite</th></tr></thead>
         <tbody id="corps1"></tbody>
       </table></div>
       <div class="tableau"><table>
-        <thead><tr><th>Niv.</th><th>SB</th><th>BB</th><th>Ante</th><th>Durée</th><th>Orbite</th><th>Cumul</th><th></th></tr></thead>
+        <thead><tr><th>Niv.</th><th>SB</th><th>BB</th><th>Ante</th><th>Durée</th><th>Orbite</th></tr></thead>
         <tbody id="corps2"></tbody>
       </table></div>
     </div>
     <div class="legende">
-      <div><b>*</b> Obligatoires : durée du niveau 1, niveaux 6, 10, 14 et 18, et le niveau où l'orbite SB+BB+ante atteint le stack (ou les deux niveaux consécutifs qui l'encadrent). Saisie au clavier ; Entrée passe au niveau suivant.</div>
+      <div><b>*</b> Obligatoires : durée du niveau 1, niveaux 6, 10, 14 et 18, et le niveau où l'orbite SB+BB+ante atteint le stack (ou les deux niveaux consécutifs qui l'encadrent) ; ce niveau est surligné. Saisie au clavier ; Entrée passe au niveau suivant.</div>
       <div>Saisir une SB remplit la BB (double) et l'ante (= BB) ; modifier la BB remet l'ante à la BB. Une durée vide hérite du niveau précédent ; une durée saisie vaut pour les niveaux suivants jusqu'à la prochaine saisie.</div>
-      <div>spts = minutes pour que l'orbite coûte le stack ÷ (O10/O6 + O14/O10 + O18/O14). Cœurs = barème spts/buy-in + correctif rake/buy-in, arrondi au demi, de 0 à 5.</div>
+      <div>spts = minutes pour que l'orbite coûte le stack ÷ (O10/O6 + O14/O10 + O18/O14). Cœurs = barème spts/buy-in + correctif rake/buy-in, arrondi au demi, de 0 à 5 ; buy-in et rake sont multipliés par coeff_dollar (1 si vide).</div>
     </div>
   </section>
 </main>
@@ -134,6 +146,9 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
   'use strict';
   var N = 30, OBLIG = [6, 10, 14, 18];
   var lignes = [];
+  var CLEF = 0x9d9a087e;
+  function fnv(t) { var h = 0x811c9dc5; for (var i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h >>> 0; }
+  function actif() { return fnv(document.getElementById('code').value.trim()) === CLEF; }
 
   // Barème spts (feuille notation de LVEvents) : ratio spts/attendu → cœurs, attendu = -64.05 + 19.73·ln(BI)
   var BAREME_SPTS = [
@@ -178,16 +193,17 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
       else inp.setAttribute('aria-label', k.toUpperCase() + ' du niveau ' + i);
       td.appendChild(inp); tr.appendChild(td); l[k] = inp;
     });
-    ['orbite', 'cumul'].forEach(function (k) { var td = document.createElement('td'); td.className = 'calc'; tr.appendChild(td); l[k] = td; });
-    var tdN = document.createElement('td'); tdN.className = 'note'; tr.appendChild(tdN); l.note = tdN;
+    var tdO = document.createElement('td'); tdO.className = 'calc'; tr.appendChild(tdO); l.orbite = tdO;
 
     l.sb.addEventListener('input', function () {
-      var sb = num(l.sb);
-      if (sb !== null) { l.bb.value = fmt(sb * 2); l.ante.value = l.bb.value; }
-      else { l.bb.value = ''; l.ante.value = ''; }
+      if (actif()) {
+        var sb = num(l.sb);
+        if (sb !== null) { l.bb.value = fmt(sb * 2); l.ante.value = l.bb.value; }
+        else { l.bb.value = ''; l.ante.value = ''; }
+      }
       recalc();
     });
-    l.bb.addEventListener('input', function () { var bb = num(l.bb); l.ante.value = bb !== null ? fmt(bb) : ''; recalc(); });
+    l.bb.addEventListener('input', function () { if (actif()) { var bb = num(l.bb); l.ante.value = bb !== null ? fmt(bb) : ''; } recalc(); });
     l.ante.addEventListener('input', recalc);
     l.duree.addEventListener('input', recalc);
     // Entrée : même colonne du niveau suivant
@@ -204,8 +220,8 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
   d1.classList.add('oblig-case'); d1.placeholder = 'min';
   lignes[0].tr.querySelector('.lvl').innerHTML = '1 <b>*</b>';
 
-  var ss = document.getElementById('ss'), bi = document.getElementById('bi'), rake = document.getElementById('rake');
-  [ss, bi, rake].forEach(function (el) { el.addEventListener('input', recalc); });
+  var code = document.getElementById('code'), ss = document.getElementById('ss'), bi = document.getElementById('bi'), rake = document.getElementById('rake'), coeff = document.getElementById('coeff');
+  [code, ss, bi, rake, coeff].forEach(function (el) { el.addEventListener('input', recalc); });
   ss.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); lignes[0].sb.focus(); } });
 
   function durees() {
@@ -220,7 +236,8 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
   }
 
   function recalc() {
-    var stack = num(ss), base = num(d1);
+    var ok = actif();
+    var stack = ok ? num(ss) : null, base = num(d1);
     var dur = durees();
     var orb = [], cumul = [], cum = 0;
     for (var i = 0; i < N; i++) {
@@ -229,7 +246,7 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
       var rempli = sb !== null && bb !== null && (sb + bb) > 0;
       var o = rempli ? sb + bb + (ante || 0) : null;
       orb.push(o);
-      l.orbite.textContent = o !== null ? fmt(o) : '';
+      l.orbite.textContent = ok && o !== null ? fmt(o) : '';
       if (i > 0) {
         var explicite = num(l.duree) !== null;
         l.duree.classList.toggle('herite', !explicite);
@@ -237,13 +254,11 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
       }
       cum += dur[i] || 0;
       cumul.push(cum);
-      l.cumul.textContent = dur[i] !== null ? fmt(cum) : '';
       l.tr.classList.remove('repere');
-      l.note.textContent = '';
       l.sb.classList.remove('manque');
     }
-    ss.classList.toggle('manque', stack === null || stack <= 0);
-    d1.classList.toggle('manque', base === null || base <= 0);
+    ss.classList.toggle('manque', ok && (stack === null || stack <= 0));
+    d1.classList.toggle('manque', ok && (base === null || base <= 0));
 
     var sptsEl = document.getElementById('spts'), sptsDet = document.getElementById('spts-detail');
     var spts = null, msg = null, detail = '';
@@ -262,10 +277,7 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
         else if (j === 0 && o1 > stack) { temps = cumul[0]; k = 0; }
         else if (o1 < stack && o2 !== null && o2 > stack) { temps = cumul[j] + dur[j + 1] * (stack - o1) / (o2 - o1); k = j + 1; }
       }
-      if (temps !== null) {
-        lignes[k].tr.classList.add('repere');
-        lignes[k].note.textContent = orb[k] === stack ? 'orbite = stack' : 'orbite > stack';
-      }
+      if (temps !== null) lignes[k].tr.classList.add('repere');
       if (manquants.length) {
         msg = 'Remplissez les niveaux obligatoires : ' + manquants.join(', ') + '.';
       } else if (temps === null) {
@@ -282,7 +294,10 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
 
     // Cœurs
     var cEl = document.getElementById('coeurs'), cDet = document.getElementById('coeurs-detail');
-    var buyin = num(bi), fee = num(rake);
+    var taux = num(coeff), buyin = num(bi), fee = num(rake);
+    if (taux === null || taux <= 0) taux = 1;
+    if (buyin !== null) buyin *= taux;
+    if (fee !== null) fee *= taux;
     if (spts === null || buyin === null || fee === null || buyin <= 0) {
       cEl.className = 'valeur texte'; cEl.textContent = 'Pas assez d’information';
       cDet.textContent = spts === null ? 'Il faut un spts, un buy-in et un rake.' : (buyin === null || buyin <= 0 ? 'Il manque le buy-in.' : 'Il manque le rake (0 si aucun).');
@@ -303,14 +318,14 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
     var dessin = '♥'.repeat(pleins) + (demi ? '½' : '') + '♡'.repeat(5 - pleins - (demi ? 1 : 0));
     cEl.className = 'valeur';
     cEl.innerHTML = '<span class="coeurs" aria-hidden="true">' + dessin + '</span> ' + fmt(note);
-    cDet.textContent = 'spts attendu ' + fmt(Math.round(attendu)) + ' → ' + fmt(noteSpts) + ' ; rake attendu ' + fmt(Math.round(attenduRake)) + ' $ → ' + (noteRake > 0 ? '+' : '') + fmt(noteRake);
+    cDet.textContent = (taux !== 1 ? 'BI ' + fmt(Math.round(buyin)) + ' $, rake ' + fmt(Math.round(fee)) + ' $ ; ' : '') + 'spts attendu ' + fmt(Math.round(attendu)) + ' → ' + fmt(noteSpts) + ' ; rake attendu ' + fmt(Math.round(attenduRake)) + ' $ → ' + (noteRake > 0 ? '+' : '') + fmt(noteRake);
   }
 
   // Mémorisation locale des saisies (confort ; fonctionne sans)
-  var CLE = 'calculette-spts-v2';
+  var CLE = 'calculette-spts-v3';
   function sauver() {
     try {
-      var etat = { ss: ss.value, bi: bi.value, rake: rake.value, niv: lignes.map(function (l) { return [l.sb.value, l.bb.value, l.ante.value, l.duree.value]; }) };
+      var etat = { code: code.value, ss: ss.value, bi: bi.value, rake: rake.value, coeff: coeff.value, niv: lignes.map(function (l) { return [l.sb.value, l.bb.value, l.ante.value, l.duree.value]; }) };
       localStorage.setItem(CLE, JSON.stringify(etat));
     } catch (e) { /* stockage indisponible */ }
   }
@@ -318,13 +333,13 @@ td.note { text-align: left; font-size: 0.68rem; color: var(--accent); font-weigh
     try {
       var etat = JSON.parse(localStorage.getItem(CLE) || 'null');
       if (!etat) return;
-      ss.value = etat.ss || ''; bi.value = etat.bi || ''; rake.value = etat.rake || '';
+      code.value = etat.code || ''; ss.value = etat.ss || ''; bi.value = etat.bi || ''; rake.value = etat.rake || ''; coeff.value = etat.coeff || '';
       (etat.niv || []).forEach(function (v, i) { if (lignes[i]) { lignes[i].sb.value = v[0]; lignes[i].bb.value = v[1]; lignes[i].ante.value = v[2]; lignes[i].duree.value = v[3]; } });
     } catch (e) { /* ignorer */ }
   }
   document.addEventListener('input', sauver);
   document.getElementById('effacer').addEventListener('click', function () {
-    [ss, bi, rake].forEach(function (el) { el.value = ''; });
+    [ss, bi, rake, coeff].forEach(function (el) { el.value = ''; });
     lignes.forEach(function (l) { l.sb.value = ''; l.bb.value = ''; l.ante.value = ''; l.duree.value = ''; });
     try { localStorage.removeItem(CLE); } catch (e) { /* ignorer */ }
     recalc(); ss.focus();
